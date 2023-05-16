@@ -6,7 +6,7 @@ The example is about employees at a company. In `before.py`, you find the origin
 
 ## Code smells examples
 
-### Imprecise types: eg. Using strings instead of `Enum` for defined categories
+### 1. Imprecise types: eg. Using strings instead of `Enum` for defined categories
 
 ```
 from enum import Enum, auto   # <-- Import these
@@ -54,7 +54,7 @@ def main() -> None:
     )
 ```
 
-### Duplicate code
+### 2. Duplicate code
 
 ```
 # Within the scope of 'class Company()`
@@ -96,7 +96,7 @@ Do this instead:
 
 ```
 
-### Not using available built-in functions
+### 3. Not using available built-in functions
 
 The following code can be refactored using list comprehensions
 
@@ -116,7 +116,7 @@ def find_employees(self, role: Role) -> List[Employee]:
         return [employee for employee in self.employees if employee.role is role]
 ```
 
-### Vague identifiers
+### 4. Vague identifiers
 
 ```
 @dataclass
@@ -137,7 +137,7 @@ class HourlyEmployee(Employee):
 ```
 
 
-### Using 'isinstance' to separate behavior
+### 5. Using 'isinstance' to separate behavior
 
 In the code below, 'isinstance()' introduces code dependency with the subclass of employee. 
 If a new employee type is introduced, this method will have to be extended accordingly. 
@@ -199,5 +199,84 @@ class SalariedEmployee(Employee):
             f"Paying employee {self.name} a monthly salary of ${self.monthly_salary}."
         )
 ```
+
+
+### 6. Using boolean flags to make a method do 2 different things
+
+A function which does two completely different things depending on the value of a boolean flag. This is bad, because
+the whole idea of methods is they allow you to separate out responsibilities. It results in long functions with 
+low cohesion, which is also harder to understand. 
+
+```
+FIXED_VACATION_DAYS_PAYOUT = 5  # The fixed nr of vacation days that can be paid out.
+
+@dataclass
+class Employee(ABC):
+    """Basic representation of an employee at the company."""
+
+    name: str
+    role: Role
+    vacation_days: int = 25
+
+    def take_a_holiday(self, payout: bool) -> None:
+        """Let the employee take a single holiday, or pay out 5 holidays."""
+        if payout:
+            # check that there are enough vacation days left for a payout
+            if self.vacation_days < FIXED_VACATION_DAYS_PAYOUT:
+                raise ValueError(
+                    f"You don't have enough holidays left over for a payout.\
+                        Remaining holidays: {self.vacation_days}."
+                )
+            try:
+                self.vacation_days -= FIXED_VACATION_DAYS_PAYOUT
+                print(f"Paying out a holiday. Holidays left: {self.vacation_days}")
+            except Exception:
+                # this should never happen
+                pass
+        else:
+            if self.vacation_days < 1:
+                raise ValueError(
+                    "You don't have any holidays left. Now back to work, you!"
+                )
+            self.vacation_days -= 1
+            print("Have fun on your holiday. Don't forget to check your emails!")
+
+```
+
+The fix is to split this method into two.
+
+```
+@dataclass
+class Employee(ABC):
+    """Basic representation of an employee at the company."""
+
+    name: str
+    role: Role
+    vacation_days: int = 25
+
+    def take_a_holiday(self) -> None:
+        """Let the employee take a single holiday."""
+        if self.vacation_days < 1:
+            raise ValueError("You don't have any holidays left. Now back to work, you!")
+        self.vacation_days -= 1
+        print("Have fun on your holiday. Don't forget to check your emails!")
+
+    def payout_a_holiday(self) -> None:
+        """Let the employee get paid for unused holidays."""
+        # check that there are enough vacation days left for a payout
+        if self.vacation_days < FIXED_VACATION_DAYS_PAYOUT:
+            raise ValueError(
+                f"You don't have enough holidays left over for a payout.\
+                    Remaining holidays: {self.vacation_days}."
+            )
+        try:
+            self.vacation_days -= FIXED_VACATION_DAYS_PAYOUT
+            print(f"Paying out a holiday. Holidays left: {self.vacation_days}")
+        except Exception:
+            # this should never happen
+            pass
+```
+
+
 
 
