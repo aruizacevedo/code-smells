@@ -1,7 +1,7 @@
 {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "[python]": {
-      "editor.defaultFormatter": null
+      "editor.defaultFormatter": "ms-python.black-formatter"
     },
     "editor.formatOnSaveMode": "file",
     "editor.formatOnSave": true,
@@ -11,7 +11,7 @@
     "python.linting.pylintEnabled": true,
     "python.linting.mypyEnabled": true,
     "python.linting.enabled": true,
-    "python.formatting.provider": "black",
+    "python.formatting.provider": "none",
     "python.analysis.useImportHeuristic": true
   }
   
