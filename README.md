@@ -85,6 +85,7 @@ def main() -> None:
 ```
 
 Do this instead:
+
 ```
     def find_employees(self, role: Role) -> List[Employee]:
         """Find all employees with a particular role."""
@@ -98,17 +99,7 @@ Do this instead:
 
 ### 3. Not using available built-in functions
 
-The following code can be refactored using list comprehensions
-
-```
-def find_employees(self, role: Role) -> List[Employee]:
-    """Find all employees with a particular role."""
-    employees = []
-    for employee in self.employees:
-        if employee.role == role:
-            employees.append(employee)
-    return employees
-```
+The code above can be refactored using list comprehensions.
 
 ```
     def find_employees(self, role: Role) -> List[Employee]:
@@ -117,6 +108,8 @@ def find_employees(self, role: Role) -> List[Employee]:
 ```
 
 ### 4. Vague identifiers
+
+Use better naming conventions for your functions/variables/classes.
 
 ```
 @dataclass
@@ -342,8 +335,27 @@ class VacationDaysShortageError(ValueError):
         super().__init__(message)
 ```
 
+Use your custom exception here:
 
+```
+@dataclass
+class Employee(ABC):
+    """Basic representation of an employee at the company."""
 
+    def payout_a_holiday(self) -> None:
+        """Let the employee get paid for unused holidays."""
+        # check that there are enough vacation days left for a payout
+        if self.vacation_days < FIXED_VACATION_DAYS_PAYOUT:
+            raise VacationDaysShortageError(
+                requested_days=FIXED_VACATION_DAYS_PAYOUT,
+                remaining_days=self.vacation_days,
+                message=f"You don't have enough holidays left over for a payout.\
+                    Remaining holidays: {self.vacation_days}.",
+            )
+
+        self.vacation_days -= FIXED_VACATION_DAYS_PAYOUT
+        print(f"Paying out a holiday. Holidays left: {self.vacation_days}")
+```
 
 
 
