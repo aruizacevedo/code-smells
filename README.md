@@ -278,5 +278,54 @@ class Employee(ABC):
 ```
 
 
+### 7. Catching and then ignoring exceptions
+
+Don't catch an exception if you're not going to do anything with it. It may hide defects in your code
+which may be even harder to spot. Fix by simply deleting the `try: ... except: ...` snippet.
+
+From:
+
+```
+@dataclass
+class Employee(ABC):
+    """Basic representation of an employee at the company."""
+
+    def payout_a_holiday(self) -> None:
+        """Let the employee get paid for unused holidays."""
+        # check that there are enough vacation days left for a payout
+        if self.vacation_days < FIXED_VACATION_DAYS_PAYOUT:
+            raise ValueError(
+                f"You don't have enough holidays left over for a payout.\
+                    Remaining holidays: {self.vacation_days}."
+            )
+        try:
+            self.vacation_days -= FIXED_VACATION_DAYS_PAYOUT
+            print(f"Paying out a holiday. Holidays left: {self.vacation_days}")
+        except Exception:
+            # this should never happen
+            pass
+
+```
+
+To:
+
+```
+@dataclass
+class Employee(ABC):
+    """Basic representation of an employee at the company."""
+
+    def payout_a_holiday(self) -> None:
+        """Let the employee get paid for unused holidays."""
+        # check that there are enough vacation days left for a payout
+        if self.vacation_days < FIXED_VACATION_DAYS_PAYOUT:
+            raise ValueError(
+                f"You don't have enough holidays left over for a payout.\
+                    Remaining holidays: {self.vacation_days}."
+            )
+            
+        self.vacation_days -= FIXED_VACATION_DAYS_PAYOUT
+        print(f"Paying out a holiday. Holidays left: {self.vacation_days}")
+```
+
 
 
