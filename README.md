@@ -327,6 +327,23 @@ class Employee(ABC):
         print(f"Paying out a holiday. Holidays left: {self.vacation_days}")
 ```
 
+#### Bonus: Not using custom exceptions
+
+In Python, `ValueError` is used when there is an issue with the provided value. If you need 
+a custom exception, it is better to define it, so the user knows what is the problem in the code. 
+
+```
+class VacationDaysShortageError(ValueError):
+    """Custom error that is raised when not enough vacation days are available."""
+    def __init__(self, requested_days: int, remaining_days: int, message: str) -> None:
+        self.requested_days = requested_days
+        self.remaining_days = remaining_days
+        self.message = message
+        super().__init__(message)
+```
+
+
+
 
 
 
