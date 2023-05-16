@@ -322,10 +322,11 @@ class Employee(ABC):
                 f"You don't have enough holidays left over for a payout.\
                     Remaining holidays: {self.vacation_days}."
             )
-            
+
         self.vacation_days -= FIXED_VACATION_DAYS_PAYOUT
         print(f"Paying out a holiday. Holidays left: {self.vacation_days}")
 ```
+
 
 
 
