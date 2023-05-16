@@ -2,6 +2,7 @@
 Very advanced Employee management system.
 """
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import List
@@ -21,7 +22,7 @@ class Role(Enum):
 
 
 @dataclass
-class Employee:
+class Employee(ABC):
     """Basic representation of an employee at the company."""
 
     name: str
@@ -51,13 +52,23 @@ class Employee:
             self.vacation_days -= 1
             print("Have fun on your holiday. Don't forget to check your emails!")
 
+    @abstractmethod
+    def pay(self) -> None:
+        """Method to call when paying an employee."""
+
 
 @dataclass
 class HourlyEmployee(Employee):
     """Employee that's paid based on number of worked hours."""
 
-    hourly_rate: float = 50
-    amount: int = 10
+    hourly_rate_dollars: float = 50
+    hours_worked: int = 10
+
+    def pay(self) -> None:
+        print(
+            f"Paying employee {self.name} a hourly rate of \
+            ${self.hourly_rate_dollars} for {self.hours_worked} hours."
+        )
 
 
 @dataclass
@@ -65,6 +76,11 @@ class SalariedEmployee(Employee):
     """Employee that's paid based on a fixed monthly salary."""
 
     monthly_salary: float = 5000
+
+    def pay(self) -> None:
+        print(
+            f"Paying employee {self.name} a monthly salary of ${self.monthly_salary}."
+        )
 
 
 class Company:
@@ -79,23 +95,7 @@ class Company:
 
     def find_employees(self, role: Role) -> List[Employee]:
         """Find all employees with a particular role."""
-        employees = []
-        for employee in self.employees:
-            if employee.role == role:
-                employees.append(employee)
-        return employees
-
-    def pay_employee(self, employee: Employee) -> None:
-        """Pay an employee."""
-        if isinstance(employee, SalariedEmployee):
-            print(
-                f"Paying employee {employee.name} a monthly salary of ${employee.monthly_salary}."
-            )
-        elif isinstance(employee, HourlyEmployee):
-            print(
-                f"Paying employee {employee.name} a hourly rate of \
-                ${employee.hourly_rate} for {employee.amount} hours."
-            )
+        return [employee for employee in self.employees if employee.role is role]
 
 
 def main() -> None:
@@ -110,7 +110,7 @@ def main() -> None:
     print(company.find_employees(role=Role.VICEPRESIDENT))
     print(company.find_employees(role=Role.MANAGER))
     print(company.find_employees(role=Role.INTERN))
-    company.pay_employee(company.employees[0])
+    company.employees[0].pay()
     company.employees[0].take_a_holiday(False)
 
 

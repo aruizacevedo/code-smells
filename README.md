@@ -4,7 +4,9 @@ This repository contains the code for the Python code smells video on the ArjanC
 
 The example is about employees at a company. In `before.py`, you find the original code (containing 7 code smells + a bonus smell). The `after.py` file contains the same code, but a lot less smelly.
 
-## Using strings instead of `Enum` for defined categories
+## Code smells examples
+
+### Imprecise types: eg. Using strings instead of `Enum` for defined categories
 
 ```
 from enum import Enum, auto   # <-- Import these
@@ -52,7 +54,7 @@ def main() -> None:
     )
 ```
 
-### Code duplication
+### Duplicate code
 
 ```
 # Within the scope of 'class Company()`
@@ -93,4 +95,109 @@ Do this instead:
         return employees
 
 ```
+
+### Not using available built-in functions
+
+The following code can be refactored using list comprehensions
+
+```
+def find_employees(self, role: Role) -> List[Employee]:
+    """Find all employees with a particular role."""
+    employees = []
+    for employee in self.employees:
+        if employee.role == role:
+            employees.append(employee)
+    return employees
+```
+
+```
+    def find_employees(self, role: Role) -> List[Employee]:
+        """Find all employees with a particular role."""
+        return [employee for employee in self.employees if employee.role is role]
+```
+
+### Vague identifiers
+
+```
+@dataclass
+class HourlyEmployee(Employee):
+    """Employee that's paid based on number of worked hours."""
+
+    hourly_rate: float = 50
+    amount: int = 10         # <-- Not meaningful
+```
+
+```
+@dataclass
+class HourlyEmployee(Employee):
+    """Employee that's paid based on number of worked hours."""
+
+    hourly_rate_dollars: float = 50   # <-- Include units (dollars) 
+    hours_worked: int = 10            # <-- Includes units (hours)
+```
+
+
+### Using 'isinstance' to separate behavior
+
+In the code below, 'isinstance()' introduces code dependency with the subclass of employee. 
+If a new employee type is introduced, this method will have to be extended accordingly. 
+There is a lot of *coupling*, which is a bad thing. 
+
+```
+# Within the scope of 'class Company()`
+
+    def pay_employee(self, employee: Employee) -> None:
+        """Pay an employee."""
+        if isinstance(employee, SalariedEmployee):
+            print(
+                f"Paying employee {employee.name} a monthly salary of ${employee.monthly_salary}."
+            )
+        elif isinstance(employee, HourlyEmployee):
+            print(
+                f"Paying employee {employee.name} a hourly rate of \
+                ${employee.hourly_rate_dollars} for {employee.hours_worked} hours."
+            )
+```
+
+The solution is to include a 'pay()' method to each employee type:
+
+
+```
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+
+@dataclass
+class Employee(ABC):
+    """Basic representation of an employee at the company."""
+
+    @abstractmethod
+    def pay(self) -> None:
+        """Method to call when paying an employee."""
+```
+```
+@dataclass
+class HourlyEmployee(Employee):
+    """Employee that's paid based on number of worked hours."""
+
+    hourly_rate_dollars: float = 50
+    hours_worked: int = 10
+
+    def pay(self) -> None:
+        print(
+            f"Paying employee {self.name} a hourly rate of \
+            ${self.hourly_rate_dollars} for {self.hours_worked} hours."
+        )
+
+@dataclass
+class SalariedEmployee(Employee):
+    """Employee that's paid based on a fixed monthly salary."""
+
+    monthly_salary: float = 5000
+
+    def pay(self) -> None:
+        print(
+            f"Paying employee {self.name} a monthly salary of ${self.monthly_salary}."
+        )
+```
+
 
