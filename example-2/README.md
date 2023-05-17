@@ -245,4 +245,38 @@ class VehicleRegistry:
 
 ### 4. Nested conditional expressions
 
+Nested conditional expressions are hard to read. It is not clear under which conditions what should happen. 
+It is better to split them. 
+
+From:
+
+```
+# In 'VehicleRegistry':
+
+    def online_status(self) -> RegistryStatus:
+        """Report whether the registry system is online."""
+        return (
+            RegistryStatus.OFFLINE
+            if not self.online
+            else RegistryStatus.CONNECTION_ERROR
+            if len(self.vehicle_models) == 0
+            else RegistryStatus.ONLINE
+        )
+```
+
+To:
+
+```
+    def online_status(self) -> RegistryStatus:
+        """Report whether the registry system is online."""
+        if not self.online:
+            return RegistryStatus.OFFLINE
+        else:
+            return (
+                RegistryStatus.CONNECTION_ERROR
+                if len(self.vehicle_models) == 0
+                else RegistryStatus.ONLINE
+            )
+```
+
 

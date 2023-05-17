@@ -105,13 +105,14 @@ class VehicleRegistry:
 
     def online_status(self) -> RegistryStatus:
         """Report whether the registry system is online."""
-        return (
-            RegistryStatus.OFFLINE
-            if not self.online
-            else RegistryStatus.CONNECTION_ERROR
-            if len(self.vehicle_models) == 0
-            else RegistryStatus.ONLINE
-        )
+        if not self.online:
+            return RegistryStatus.OFFLINE
+        else:
+            return (
+                RegistryStatus.CONNECTION_ERROR
+                if len(self.vehicle_models) == 0
+                else RegistryStatus.ONLINE
+            )
 
 
 if __name__ == "__main__":
