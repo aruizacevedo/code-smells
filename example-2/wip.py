@@ -55,8 +55,7 @@ class VehicleModelInfo:
         tax_percentage = taxes[self.fuel_type]
         return tax_percentage * self.catalogue_price
 
-    def get_info_str(self) -> str:
-        """String representation of this instance."""
+    def __str__(self) -> str:
         return f"brand: {self.brand} - type: {self.model} - tax: {self.tax}"
 
 
@@ -68,10 +67,8 @@ class Vehicle:
     license_plate: str
     info: VehicleModelInfo
 
-    def to_string(self) -> str:
-        """String representation of this instance."""
-        info_str = self.info.get_info_str()
-        return f"Id: {self.vehicle_id}. License plate: {self.license_plate}. Info: {info_str}."
+    def __str__(self) -> str:
+        return f"Id: {self.vehicle_id}. License plate: {self.license_plate}. Info: {self.info}."
 
 
 class VehicleRegistry:
@@ -137,4 +134,4 @@ if __name__ == "__main__":
     vehicle = registry.register_vehicle("Volkswagen", "ID3")
 
     # print out the vehicle information
-    print(vehicle.to_string())
+    print(vehicle)

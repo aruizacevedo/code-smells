@@ -300,3 +300,76 @@ string.digits
 string.ascii_uppercase
 ```
 
+### 6. Asymmetrical code
+
+The following classes have a method to print as a string. Note however that the names of these methods 
+are not consistent: *.get_info_str()* and *.to_string()*. In this case, it is better to use the 
+built-in method of `__str__()`
+
+From:
+
+```
+@dataclass
+class VehicleModelInfo:
+    """Class that contains basic information about a vehicle model."""
+
+    brand: str
+    model: str
+    catalogue_price: int
+    fuel_type: FuelType = FuelType.ELECTRIC
+    production_year: int = datetime.now().year
+
+    def get_info_str(self) -> str:
+        """String representation of this instance."""
+        return f"brand: {self.brand} - type: {self.model} - tax: {self.tax}"
+```
+```
+@dataclass
+class Vehicle:
+    """Class representing a vehicle (electric or fossil fuel)."""
+
+    vehicle_id: str
+    license_plate: str
+    info: VehicleModelInfo
+
+    def to_string(self) -> str:
+        """String representation of this instance."""
+        info_str = self.info.get_info_str()
+        return f"Id: {self.vehicle_id}. License plate: {self.license_plate}. Info: {info_str}."
+```
+
+To: 
+
+```
+@dataclass
+class VehicleModelInfo:
+    """Class that contains basic information about a vehicle model."""
+
+    brand: str
+    model: str
+    catalogue_price: int
+    fuel_type: FuelType = FuelType.ELECTRIC
+    production_year: int = datetime.now().year
+
+    def __str__(self) -> str:
+        return f"brand: {self.brand} - type: {self.model} - tax: {self.tax}"
+```
+```
+@dataclass
+class Vehicle:
+    """Class representing a vehicle (electric or fossil fuel)."""
+
+    vehicle_id: str
+    license_plate: str
+    info: VehicleModelInfo
+
+    def __str__(self) -> str:
+        return f"Id: {self.vehicle_id}. License plate: {self.license_plate}. Info: {self.info}."
+```
+
+#### Using `__str__` or `__repr__`?
+
+Use `__str__` to produce a human readable string, and `__repr__` to produce a string that represents
+the object. In other words, *str* is intended for the users, and *repr* for the developers.
+
+
