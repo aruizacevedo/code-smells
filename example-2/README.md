@@ -279,4 +279,24 @@ To:
             )
 ```
 
+### 5. Using wildcard imports
+
+Using wildcard import is a bad idea, as it polutes your namespace in the module, which may 
+become confusing very quickly. 
+
+```
+from random import *
+from string import *
+```
+
+Instead, import the libraries, and call the appropriate methods where appropriate
+
+```
+import random
+import string
+
+random.choices()
+string.digits
+string.ascii_uppercase
+```
 

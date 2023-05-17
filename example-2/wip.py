@@ -1,11 +1,14 @@
 """
 Basic example of a Vehicle registration system.
 """
+import random
+import string
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum, auto
-from random import *
-from string import *
+
+# from random import *
+# from string import *
 from typing import Optional, Tuple
 
 
@@ -84,11 +87,11 @@ class VehicleRegistry:
 
     def generate_vehicle_id(self, length: int) -> str:
         """Helper method for generating a random vehicle id."""
-        return "".join(choices(ascii_uppercase, k=length))
+        return "".join(random.choices(string.ascii_uppercase, k=length))
 
     def generate_vehicle_license(self, _id: str) -> str:
         """Helper method for generating a vehicle license number."""
-        return f"{_id[:2]}-{''.join(choices(digits, k=2))}-{''.join(choices(ascii_uppercase, k=2))}"
+        return f"{_id[:2]}-{''.join(random.choices(string.digits, k=2))}-{''.join(random.choices(string.ascii_uppercase, k=2))}"
 
     def find_model_info(self, brand: str, model: str) -> Optional[VehicleModelInfo]:
         """Finds vehicle model info for a brand and model. If no info can be found, None is returned."""
