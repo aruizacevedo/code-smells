@@ -373,3 +373,123 @@ Use `__str__` to produce a human readable string, and `__repr__` to produce a st
 the object. In other words, *str* is intended for the users, and *repr* for the developers.
 
 
+### 7. Using `self` when it's not needed
+
+If you have a method that does not change an instance value, it's better to use `@staticmethod` and 
+remove *self* from the method. For example:
+
+From:
+
+```
+class VehicleRegistry:
+    """Class representing a basic vehicle registration system."""
+
+    def generate_vehicle_id(self, length: int) -> str:
+        """Helper method for generating a random vehicle id."""
+        return "".join(random.choices(string.ascii_uppercase, k=length))
+
+    def generate_vehicle_license(self, _id: str) -> str:
+        """Helper method for generating a vehicle license number."""
+        return f"{_id[:2]}-{''.join(random.choices(string.digits, k=2))}-{''.join(random.choices(string.ascii_uppercase, k=2))}"
+```
+
+To:
+
+```
+class VehicleRegistry:
+    """Class representing a basic vehicle registration system."""
+
+    @staticmethod
+    def generate_vehicle_id(length: int) -> str:
+        """Helper method for generating a random vehicle id."""
+        return "".join(random.choices(string.ascii_uppercase, k=length))
+
+    @staticmethod
+    def generate_vehicle_license(_id: str) -> str:
+        """Helper method for generating a vehicle license number."""
+        return f"{_id[:2]}-{''.join(random.choices(string.digits, k=2))}-{''.join(random.choices(string.ascii_uppercase, k=2))}"
+```
+
+Note that the method *.generate_vehicle_license()* can be refactored as so, to increase readability:
+
+```
+    @staticmethod
+    def generate_vehicle_license(_id: str) -> str:
+        """Helper method for generating a vehicle license number."""
+        digit_part = "".join(random.choices(string.digits, k=2))
+        letter_part = "".join(random.choices(string.ascii_uppercase, k=2))
+        return f"{_id[:2]}-{digit_part}-{letter_part}"
+```
+
+#### *Static* methods vs *Class* methods
+
+**Class methods** are methods that have access to the class instance, so it can change class variables, attributes.
+**Static methods** can't do that. They simply belong to a class.
+
+In this example, you could argue that generating vehicle plates and ids shouldn't even be part of the Registry, 
+but they should belong to a separate module that provides helper functions. 
+
+
+### 8. Not using a *main()* function
+
+If you don't create a *main()* function, and instead place your running code under an if-statement, then
+every variable that you create is going to be available at the module level, and that might lead to 
+all kind of name clashes, etc. The solution is to always use a separate *main()* function.
+
+From:
+
+```
+if __name__ == "__main__":
+    # create a registry instance
+    registry = VehicleRegistry()
+
+    # add a couple of different vehicle models
+    registry.add_vehicle_model_info(VehicleModelInfo("Tesla", "Model 3", 50000))
+    registry.add_vehicle_model_info(VehicleModelInfo("Volkswagen", "ID3", 35000))
+    registry.add_vehicle_model_info(
+        VehicleModelInfo("BMW", "520e", 60000, FuelType.PETROL)
+    )
+    registry.add_vehicle_model_info(VehicleModelInfo("Tesla", "Model Y", 55000))
+
+    # verify that the registry is online
+    print(f"Registry status: {registry.online_status()}")
+
+    # register a new vehicle
+    vehicle = registry.register_vehicle("Volkswagen", "ID3")
+
+    # print out the vehicle information
+    print(vehicle)
+```
+
+To:
+
+```
+def main():
+
+    # create a registry instance
+    registry = VehicleRegistry()
+
+    # add a couple of different vehicle models
+    registry.add_vehicle_model_info(VehicleModelInfo("Tesla", "Model 3", 50000))
+    registry.add_vehicle_model_info(VehicleModelInfo("Volkswagen", "ID3", 35000))
+    registry.add_vehicle_model_info(
+        VehicleModelInfo("BMW", "520e", 60000, FuelType.PETROL)
+    )
+    registry.add_vehicle_model_info(VehicleModelInfo("Tesla", "Model Y", 55000))
+
+    # verify that the registry is online
+    print(f"Registry status: {registry.online_status()}")
+
+    # register a new vehicle
+    vehicle = registry.register_vehicle("Volkswagen", "ID3")
+
+    # print out the vehicle information
+    print(vehicle)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+
+
