@@ -2,9 +2,11 @@
 Basic example of a Vehicle registration system.
 """
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum, auto
 from random import *
 from string import *
+from typing import Optional
 
 
 class FuelType(Enum):
@@ -41,8 +43,8 @@ class VehicleModelInfo:
     brand: str
     model: str
     catalogue_price: int
-    fuel_type: FuelType
-    production_year: int
+    fuel_type: FuelType = FuelType.ELECTRIC
+    production_year: int = datetime.now().year
 
     @property
     def tax(self) -> float:
@@ -76,18 +78,9 @@ class VehicleRegistry:
         self.vehicle_models: list[VehicleModelInfo] = []
         self.online = True
 
-    def add_vehicle_model_info(
-        self,
-        brand: str,
-        model: str,
-        catalogue_price: int,
-        fuel_type: FuelType,
-        year: int,
-    ) -> None:
+    def add_vehicle_model_info(self, model_info: VehicleModelInfo) -> None:
         """Helper method for adding a VehicleModelInfo object to a list."""
-        self.vehicle_models.append(
-            VehicleModelInfo(brand, model, catalogue_price, fuel_type, year)
-        )
+        self.vehicle_models.append(model_info)
 
     def generate_vehicle_id(self, length: int) -> str:
         """Helper method for generating a random vehicle id."""
@@ -97,15 +90,22 @@ class VehicleRegistry:
         """Helper method for generating a vehicle license number."""
         return f"{_id[:2]}-{''.join(choices(digits, k=2))}-{''.join(choices(ascii_uppercase, k=2))}"
 
-    def register_vehicle(self, brand: str, model: str) -> Vehicle:
+    def find_model_info(self, brand: str, model: str) -> Optional[VehicleModelInfo]:
         """Create a new vehicle and generate an id and a license plate."""
         for vehicle_info in self.vehicle_models:
-            if vehicle_info.brand == brand:
-                if vehicle_info.model == model:
-                    vehicle_id = self.generate_vehicle_id(12)
-                    license_plate = self.generate_vehicle_license(vehicle_id)
-                    return Vehicle(vehicle_id, license_plate, vehicle_info)
-        raise VehicleInfoMissingError(brand, model)
+            if vehicle_info.brand != brand or vehicle_info.model != model:
+                continue
+            return vehicle_info
+        return None
+
+    def register_vehicle(self, brand: str, model: str) -> Vehicle:
+        """Create a new vehicle and generate an id and a license plate."""
+        if not (vehicle_model := self.find_model_info(brand, model)):
+            raise VehicleInfoMissingError(brand, model)
+
+        vehicle_id = self.generate_vehicle_id(12)
+        license_plate = self.generate_vehicle_license(vehicle_id)
+        return Vehicle(vehicle_id, license_plate, vehicle_model)
 
     def online_status(self) -> RegistryStatus:
         """Report whether the registry system is online."""
@@ -119,15 +119,16 @@ class VehicleRegistry:
 
 
 if __name__ == "__main__":
-
     # create a registry instance
     registry = VehicleRegistry()
 
     # add a couple of different vehicle models
-    registry.add_vehicle_model_info("Tesla", "Model 3", 50000, FuelType.ELECTRIC, 2021)
-    registry.add_vehicle_model_info("Volkswagen", "ID3", 35000, FuelType.ELECTRIC, 2021)
-    registry.add_vehicle_model_info("BMW", "520e", 60000, FuelType.PETROL, 2021)
-    registry.add_vehicle_model_info("Tesla", "Model Y", 55000, FuelType.ELECTRIC, 2021)
+    registry.add_vehicle_model_info(VehicleModelInfo("Tesla", "Model 3", 50000))
+    registry.add_vehicle_model_info(VehicleModelInfo("Volkswagen", "ID3", 35000))
+    registry.add_vehicle_model_info(
+        VehicleModelInfo("BMW", "520e", 60000, FuelType.PETROL)
+    )
+    registry.add_vehicle_model_info(VehicleModelInfo("Tesla", "Model Y", 55000))
 
     # verify that the registry is online
     print(f"Registry status: {registry.online_status()}")
