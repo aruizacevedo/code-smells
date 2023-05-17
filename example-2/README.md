@@ -194,3 +194,55 @@ returns the result of the assignment. So you can combine assignment and checking
         return Vehicle(vehicle_id, license_plate, vehicle_model)
 ```
 
+### 3. Not using the right data structure
+
+Here, storing 'vehicle_info' as a list involves that each check has to be done over the whole list.
+Using a dictionary would be more suitable, as we can use the 'brand' and 'model' as keys.
+
+From:
+
+```
+class VehicleRegistry:
+    """Class representing a basic vehicle registration system."""
+
+    def __init__(self) -> None:
+        self.vehicle_models: list[VehicleModelInfo] = []
+        self.online = True
+
+    def add_vehicle_model_info(self, model_info: VehicleModelInfo) -> None:
+        """Helper method for adding a VehicleModelInfo object to a list."""
+        self.vehicle_models.append(model_info)
+
+    def find_model_info(self, brand: str, model: str) -> Optional[VehicleModelInfo]:
+        """Finds vehicle model info for a brand and model. If no info can be found, None is returned."""
+        for vehicle_info in self.vehicle_models:
+            if vehicle_info.brand != brand or vehicle_info.model != model:
+                continue
+            return vehicle_info
+        return None
+```
+
+To:
+
+```
+from typing import Tuple
+
+class VehicleRegistry:
+    """Class representing a basic vehicle registration system."""
+
+    def __init__(self) -> None:
+        self.vehicle_models: dict[Tuple(str, str), VehicleModelInfo] = {}
+        self.online = True
+
+    def add_vehicle_model_info(self, model_info: VehicleModelInfo) -> None:
+        """Helper method for adding a VehicleModelInfo object to a dict."""
+        self.vehicle_models[(model_info.brand, model_info.model)] = model_info
+
+    def find_model_info(self, brand: str, model: str) -> Optional[VehicleModelInfo]:
+        """Finds vehicle model info for a brand and model. If no info can be found, None is returned."""
+        return self.vehicle_models.get((brand, model))
+```
+
+### 4. Nested conditional expressions
+
+

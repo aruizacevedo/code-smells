@@ -6,7 +6,7 @@ from datetime import datetime
 from enum import Enum, auto
 from random import *
 from string import *
-from typing import Optional
+from typing import Optional, Tuple
 
 
 class FuelType(Enum):
@@ -75,12 +75,12 @@ class VehicleRegistry:
     """Class representing a basic vehicle registration system."""
 
     def __init__(self) -> None:
-        self.vehicle_models: list[VehicleModelInfo] = []
+        self.vehicle_models: dict[Tuple[str, str], VehicleModelInfo] = {}
         self.online = True
 
     def add_vehicle_model_info(self, model_info: VehicleModelInfo) -> None:
-        """Helper method for adding a VehicleModelInfo object to a list."""
-        self.vehicle_models.append(model_info)
+        """Helper method for adding a VehicleModelInfo object to a dict."""
+        self.vehicle_models[(model_info.brand, model_info.model)] = model_info
 
     def generate_vehicle_id(self, length: int) -> str:
         """Helper method for generating a random vehicle id."""
@@ -91,12 +91,8 @@ class VehicleRegistry:
         return f"{_id[:2]}-{''.join(choices(digits, k=2))}-{''.join(choices(ascii_uppercase, k=2))}"
 
     def find_model_info(self, brand: str, model: str) -> Optional[VehicleModelInfo]:
-        """Create a new vehicle and generate an id and a license plate."""
-        for vehicle_info in self.vehicle_models:
-            if vehicle_info.brand != brand or vehicle_info.model != model:
-                continue
-            return vehicle_info
-        return None
+        """Finds vehicle model info for a brand and model. If no info can be found, None is returned."""
+        return self.vehicle_models.get((brand, model))
 
     def register_vehicle(self, brand: str, model: str) -> Vehicle:
         """Create a new vehicle and generate an id and a license plate."""
